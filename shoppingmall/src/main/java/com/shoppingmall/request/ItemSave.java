@@ -18,4 +18,6 @@ public class ItemSave {
     @NotNull(message = "상품 가격을 입력하세요.")
     @Min(value = 1000, message = "상품 가격은 1,000 원 이상이어야 합니다.")
     private Integer price;
+
+    private String description;
 }
