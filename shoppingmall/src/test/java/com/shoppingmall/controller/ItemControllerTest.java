@@ -59,7 +59,7 @@ class ItemControllerTest {
                         .accept(APPLICATION_JSON)
                         .content(content))
                 .andExpect(status().isOk())
-                .andExpect(content().string("{}"))
+                .andExpect(content().string(""))
                 .andDo(print());
 
         //when

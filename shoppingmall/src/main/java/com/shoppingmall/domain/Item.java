@@ -1,9 +1,6 @@
 package com.shoppingmall.domain;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -23,6 +20,7 @@ public class Item {
 
     private int price;
 
+    @Builder
     public Item(String name, String description, int price) {
         this.name = name;
         this.description = description;

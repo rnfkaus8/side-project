@@ -15,8 +15,12 @@ public class ItemService {
     private final ItemRepository itemRepository;
 
     public Item save(ItemSave itemSave){
-        Item item = new Item(itemSave.getName(), itemSave.getDescription(), itemSave.getPrice());
-        itemRepository.save(item);
+        Item item = Item.builder()
+                .name(itemSave.getName())
+                .description(itemSave.getDescription())
+                .price(itemSave.getPrice())
+                .build();
+        Item savedItem = itemRepository.save(item);
         return item;
     }
 }

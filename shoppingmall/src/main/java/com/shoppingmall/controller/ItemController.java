@@ -26,8 +26,7 @@ public class ItemController {
     }
 
     @PostMapping("/items")
-    public Map<String, String> save(@RequestBody @Valid ItemSave request) {
+    public void save(@RequestBody @Valid ItemSave request) {
         itemService.save(request);
-        return Map.of();
     }
 }
