@@ -1,6 +1,8 @@
 package com.shoppingmall.controller;
 
 import com.shoppingmall.request.ItemSave;
+import com.shoppingmall.service.ItemService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -13,7 +15,10 @@ import java.util.Map;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 public class ItemController {
+
+    private final ItemService itemService;
 
     @GetMapping("/items")
     public String get() {
@@ -22,9 +27,7 @@ public class ItemController {
 
     @PostMapping("/items")
     public Map<String, String> save(@RequestBody @Valid ItemSave request) {
-        log.info("request={}", request);
-        log.info("name={}, price={}", request.getName(), request.getPrice());
-
+        itemService.save(request);
         return Map.of();
     }
 }

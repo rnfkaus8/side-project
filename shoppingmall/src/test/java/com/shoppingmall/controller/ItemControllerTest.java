@@ -1,21 +1,29 @@
 package com.shoppingmall.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shoppingmall.domain.Item;
+import com.shoppingmall.repository.ItemRepository;
 import com.shoppingmall.request.ItemSave;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Transactional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-@WebMvcTest
+@AutoConfigureMockMvc
+@SpringBootTest
+@Transactional
 class ItemControllerTest {
 
     @Autowired
@@ -23,6 +31,9 @@ class ItemControllerTest {
 
     @Autowired
     ObjectMapper objectMapper;
+
+    @Autowired
+    ItemRepository itemRepository;
 
     @Test
     @DisplayName("/items GET 요청 시 Hello World 출력")
@@ -36,20 +47,32 @@ class ItemControllerTest {
     @Test
     @DisplayName("/items POST 요청 테스트")
     void save() throws Exception {
-        String content = objectMapper.writeValueAsString(new ItemSave("itemName", 10000));
+        //given
+        ItemSave itemSave = new ItemSave("itemName", 10000, "");
+        String content = objectMapper.writeValueAsString(itemSave);
         mockMvc.perform(post("/items")
                         .contentType(APPLICATION_JSON)
                         .accept(APPLICATION_JSON)
                         .content(content))
                 .andExpect(status().isOk())
-//                .andExpect()
+                .andExpect(content().string("{}"))
                 .andDo(print());
+
+        //when
+        Item findItem = itemRepository.findAll().get(0);
+
+        //then
+        assertThat(itemRepository.count()).isEqualTo(1L);
+        assertThat(findItem.getName()).isEqualTo(itemSave.getName());
+        assertThat(findItem.getPrice()).isEqualTo(itemSave.getPrice());
+        assertThat(findItem.getDescription()).isEqualTo(itemSave.getDescription());
+
     }
 
     @Test
     @DisplayName("/items POST 요청 시 name 필수, price 필수, price >= 1000 성공")
     void itemSaveValid() throws Exception {
-        String content = objectMapper.writeValueAsString(new ItemSave("name", 1000));
+        String content = objectMapper.writeValueAsString(new ItemSave("name", 1000, ""));
         mockMvc.perform(post("/items")
                         .contentType(APPLICATION_JSON)
                         .accept(APPLICATION_JSON)
@@ -64,7 +87,7 @@ class ItemControllerTest {
         mockMvc.perform(post("/items")
                         .contentType(APPLICATION_JSON)
                         .accept(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new ItemSave("", 1000))))
+                        .content(objectMapper.writeValueAsString(new ItemSave("", 1000, ""))))
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.code").value("400"))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
@@ -74,7 +97,7 @@ class ItemControllerTest {
         mockMvc.perform(post("/items")
                         .contentType(APPLICATION_JSON)
                         .accept(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new ItemSave("not null", 999))))
+                        .content(objectMapper.writeValueAsString(new ItemSave("not null", 999,""))))
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.code").value("400"))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
@@ -84,7 +107,7 @@ class ItemControllerTest {
         mockMvc.perform(post("/items")
                         .contentType(APPLICATION_JSON)
                         .accept(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new ItemSave(null, null))))
+                        .content(objectMapper.writeValueAsString(new ItemSave(null, null, null))))
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.code").value("400"))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
@@ -92,4 +115,5 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.validation.price").value("상품 가격을 입력하세요."))
                 .andDo(print());
     }
+
 }
