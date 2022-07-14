@@ -4,14 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shoppingmall.domain.Item;
 import com.shoppingmall.repository.ItemRepository;
 import com.shoppingmall.request.ItemSave;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,12 +33,24 @@ class ItemControllerTest {
     ItemRepository itemRepository;
 
     @Test
-    @DisplayName("/items GET 요청 시 Hello World 출력")
+    @DisplayName("상품 단건 조회")
     void get() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/items"))
+        //given
+        Item item = Item.builder()
+                .name("상품명1")
+                .price(10000)
+                .build();
+        itemRepository.save(item);
+        //expected
+        mockMvc.perform(MockMvcRequestBuilders.get("/items/{itemId}", item.getId())
+                        .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("hello world"))
+                .andExpect(jsonPath("$.id").value(item.getId()))
+                .andExpect(jsonPath("$.name").value(item.getName()))
+                .andExpect(jsonPath("$.price").value(item.getPrice()))
+                .andExpect(jsonPath("$.description").value(item.getDescription()))
                 .andDo(print());
+
     }
 
     @Test

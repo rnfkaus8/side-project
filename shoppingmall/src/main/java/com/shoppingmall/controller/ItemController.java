@@ -1,6 +1,8 @@
 package com.shoppingmall.controller;
 
+import com.shoppingmall.domain.Item;
 import com.shoppingmall.request.ItemSave;
+import com.shoppingmall.response.ItemResponse;
 import com.shoppingmall.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,13 +22,14 @@ public class ItemController {
 
     private final ItemService itemService;
 
-    @GetMapping("/items")
-    public String get() {
-        return "hello world";
+    @GetMapping("/items/{itemId}")
+    public ItemResponse get(@PathVariable Long itemId) {
+        return itemService.getItem(itemId);
     }
 
     @PostMapping("/items")
     public void save(@RequestBody @Valid ItemSave request) {
         itemService.save(request);
     }
+
 }
