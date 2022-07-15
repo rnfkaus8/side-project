@@ -13,10 +13,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.MediaType.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -49,6 +52,33 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.name").value(item.getName()))
                 .andExpect(jsonPath("$.price").value(item.getPrice()))
                 .andExpect(jsonPath("$.description").value(item.getDescription()))
+                .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("상품 리스트 조회")
+    void getList() throws Exception {
+        //given
+        Item item1 = Item.builder()
+                .name("상품명1")
+                .price(10000)
+                .build();
+
+        Item item2 = Item.builder()
+                .name("상품명2")
+                .price(20000)
+                .build();
+        itemRepository.saveAll(List.of(item1, item2));
+        //expected
+        mockMvc.perform(MockMvcRequestBuilders.get("/items")
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", is(2)))
+                .andExpect(jsonPath("$[1].id").value(item2.getId()))
+                .andExpect(jsonPath("$[1].name").value(item2.getName()))
+                .andExpect(jsonPath("$[1].price").value(item2.getPrice()))
+                .andExpect(jsonPath("$[1].description").value(item2.getDescription()))
                 .andDo(print());
 
     }
