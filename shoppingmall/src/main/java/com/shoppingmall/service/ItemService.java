@@ -6,6 +6,8 @@ import com.shoppingmall.request.ItemSave;
 import com.shoppingmall.response.ItemResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,8 +44,8 @@ public class ItemService {
 
     }
 
-    public List<ItemResponse> getItems() {
-        return itemRepository.findAll()
+    public List<ItemResponse> getItems(Pageable pageable) {
+        return itemRepository.findAll(PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort()))
                 .stream().map(ItemResponse::new)
                 .collect(Collectors.toList());
     }
