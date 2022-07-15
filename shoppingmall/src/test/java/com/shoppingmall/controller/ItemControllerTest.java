@@ -14,6 +14,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -57,28 +59,25 @@ class ItemControllerTest {
     }
 
     @Test
-    @DisplayName("상품 리스트 조회")
+    @DisplayName("상품 리스트 1페이지  조회")
     void getList() throws Exception {
         //given
-        Item item1 = Item.builder()
-                .name("상품명1")
-                .price(10000)
-                .build();
 
-        Item item2 = Item.builder()
-                .name("상품명2")
-                .price(20000)
-                .build();
-        itemRepository.saveAll(List.of(item1, item2));
+        List<Item> requestItems = IntStream.range(0, 30)
+                .mapToObj(i -> Item.builder()
+                        .name("상품명_" + i)
+                        .price(i * 1000)
+                        .description("설명_" + i)
+                        .build())
+                .collect(Collectors.toList());
+        itemRepository.saveAll(requestItems);
         //expected
-        mockMvc.perform(MockMvcRequestBuilders.get("/items")
+        mockMvc.perform(MockMvcRequestBuilders.get("/items?page=1&sort=id,DESC")
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()", is(2)))
-                .andExpect(jsonPath("$[1].id").value(item2.getId()))
-                .andExpect(jsonPath("$[1].name").value(item2.getName()))
-                .andExpect(jsonPath("$[1].price").value(item2.getPrice()))
-                .andExpect(jsonPath("$[1].description").value(item2.getDescription()))
+                .andExpect(jsonPath("$.length()", is(5)))
+                .andExpect(jsonPath("$[0].name").value("상품명_29"))
+                .andExpect(jsonPath("$[0].description").value("설명_29"))
                 .andDo(print());
 
     }
