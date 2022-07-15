@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -39,4 +42,9 @@ public class ItemService {
 
     }
 
+    public List<ItemResponse> getItems() {
+        return itemRepository.findAll()
+                .stream().map(ItemResponse::new)
+                .collect(Collectors.toList());
+    }
 }
