@@ -72,7 +72,7 @@ class ItemControllerTest {
                 .collect(Collectors.toList());
         itemRepository.saveAll(requestItems);
         //expected
-        mockMvc.perform(MockMvcRequestBuilders.get("/items?page=1&sort=id,DESC")
+        mockMvc.perform(MockMvcRequestBuilders.get("/items?page=0&size=5")
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()", is(5)))

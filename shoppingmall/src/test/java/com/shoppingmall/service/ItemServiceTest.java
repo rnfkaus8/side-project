@@ -3,14 +3,12 @@ package com.shoppingmall.service;
 import com.shoppingmall.domain.Item;
 import com.shoppingmall.repository.ItemRepository;
 import com.shoppingmall.request.ItemSave;
+import com.shoppingmall.request.ItemSearch;
 import com.shoppingmall.response.ItemResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -79,8 +77,10 @@ class ItemServiceTest {
         itemRepository.saveAll(requestItems);
 
         //when
-        Pageable pageable = PageRequest.of(0, 10, Sort.Direction.DESC, "id");
-        List<ItemResponse> findItems = itemService.getItems(pageable);
+        ItemSearch itemSearch = ItemSearch.builder()
+                .page(1)
+                .build();
+        List<ItemResponse> findItems = itemService.getItems(itemSearch);
 
         //then
         assertThat(findItems.size()).isEqualTo(10);
