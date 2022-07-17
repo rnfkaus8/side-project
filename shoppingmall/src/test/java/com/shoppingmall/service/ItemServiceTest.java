@@ -2,6 +2,7 @@ package com.shoppingmall.service;
 
 import com.shoppingmall.domain.Item;
 import com.shoppingmall.repository.ItemRepository;
+import com.shoppingmall.request.ItemEdit;
 import com.shoppingmall.request.ItemSave;
 import com.shoppingmall.request.ItemSearch;
 import com.shoppingmall.response.ItemResponse;
@@ -85,5 +86,59 @@ class ItemServiceTest {
         //then
         assertThat(findItems.size()).isEqualTo(10);
         assertThat(findItems.get(0).getName()).isEqualTo("상품명_29");
+    }
+
+    @Test
+    @DisplayName("상품 명 수정")
+    void editItemName() {
+        //given
+        Item item = Item.builder()
+                .name("상품명1")
+                .price(1000)
+                .description("상품설명1")
+                .build();
+
+        itemRepository.save(item);
+
+        ItemEdit itemEdit = ItemEdit.builder()
+                .name("메소")
+                .price(item.getPrice())
+                .description(item.getDescription())
+                .build();
+        //when
+        itemService.edit(item.getId(), itemEdit);
+
+        //then
+        Item changedItem = itemRepository.findById(item.getId())
+                .orElseThrow(() -> new RuntimeException("상품이 존재하지 않습니다. id=" + item.getId()));
+
+        assertThat(changedItem.getName()).isEqualTo(itemEdit.getName());
+    }
+
+    @Test
+    @DisplayName("상품 가격 수정")
+    void editItemPrice() {
+        //given
+        Item item = Item.builder()
+                .name("상품명1")
+                .price(1000)
+                .description("상품설명1")
+                .build();
+
+        itemRepository.save(item);
+
+        ItemEdit itemEdit = ItemEdit.builder()
+                .name(item.getName())
+                .price(10000)
+                .description(item.getDescription())
+                .build();
+        //when
+        itemService.edit(item.getId(), itemEdit);
+
+        //then
+        Item changedItem = itemRepository.findById(item.getId())
+                .orElseThrow(() -> new RuntimeException("상품이 존재하지 않습니다. id=" + item.getId()));
+
+        assertThat(changedItem.getPrice()).isEqualTo(itemEdit.getPrice());
     }
 }

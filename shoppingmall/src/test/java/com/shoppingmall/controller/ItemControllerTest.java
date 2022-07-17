@@ -3,6 +3,7 @@ package com.shoppingmall.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shoppingmall.domain.Item;
 import com.shoppingmall.repository.ItemRepository;
+import com.shoppingmall.request.ItemEdit;
 import com.shoppingmall.request.ItemSave;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,7 @@ import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -166,6 +168,31 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.validation.name").value("상품명을 입력하세요."))
                 .andExpect(jsonPath("$.validation.price").value("상품 가격을 입력하세요."))
                 .andDo(print());
+    }
+
+    @Test
+    @DisplayName("상품명 변경")
+    void edit() throws Exception {
+        //given
+        Item item = Item.builder()
+                .name("상품명1")
+                .price(10000)
+                .build();
+        itemRepository.save(item);
+
+        ItemEdit itemEdit = ItemEdit.builder()
+                .name("변경상품명1")
+                .price(item.getPrice())
+                .description(item.getDescription())
+                .build();
+
+        mockMvc.perform(patch("/items/{itemId}", item.getId())
+                        .contentType(APPLICATION_JSON)
+                        .accept(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(itemEdit)))
+                .andExpect(status().isOk())
+                .andDo(print());
+
     }
 
 }

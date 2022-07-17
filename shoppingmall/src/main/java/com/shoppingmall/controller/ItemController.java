@@ -1,5 +1,6 @@
 package com.shoppingmall.controller;
 
+import com.shoppingmall.request.ItemEdit;
 import com.shoppingmall.request.ItemSave;
 import com.shoppingmall.request.ItemSearch;
 import com.shoppingmall.response.ItemResponse;
@@ -31,6 +32,11 @@ public class ItemController {
     @PostMapping("/items")
     public void save(@RequestBody @Valid ItemSave request) {
         itemService.save(request);
+    }
+
+    @PatchMapping("/items/{itemId}")
+    public ItemResponse edit(@PathVariable Long itemId, @RequestBody @Valid ItemEdit request) {
+        return itemService.edit(itemId, request);
     }
 
 }

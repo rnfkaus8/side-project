@@ -1,13 +1,16 @@
 package com.shoppingmall.service;
 
 import com.shoppingmall.domain.Item;
+import com.shoppingmall.domain.ItemEditor;
 import com.shoppingmall.repository.ItemRepository;
+import com.shoppingmall.request.ItemEdit;
 import com.shoppingmall.request.ItemSave;
 import com.shoppingmall.request.ItemSearch;
 import com.shoppingmall.response.ItemResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,5 +50,23 @@ public class ItemService {
         return itemRepository.getList(itemSearch)
                 .stream().map(ItemResponse::new)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public ItemResponse edit(Long id, ItemEdit itemEdit) {
+        Item item = itemRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
+
+        ItemEditor.ItemEditorBuilder itemEditorBuilder = item.toEditor();
+
+        ItemEditor itemEditor = itemEditorBuilder
+                .name(itemEdit.getName())
+                .price(itemEdit.getPrice())
+                .description(itemEdit.getDescription())
+                .build();
+
+        item.edit(itemEditor);
+
+        return new ItemResponse(item);
     }
 }
