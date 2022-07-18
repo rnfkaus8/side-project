@@ -39,4 +39,9 @@ public class ItemController {
         return itemService.edit(itemId, request);
     }
 
+    @DeleteMapping("/items/{itemId}")
+    public void edit(@PathVariable Long itemId) {
+        itemService.delete(itemId);
+    }
+
 }

@@ -192,7 +192,25 @@ class ItemControllerTest {
                         .content(objectMapper.writeValueAsString(itemEdit)))
                 .andExpect(status().isOk())
                 .andDo(print());
-
     }
+
+    @Test
+    @DisplayName("상품 삭제")
+    void delete() throws Exception {
+        //given
+        Item item = Item.builder()
+                .name("상품명1")
+                .price(10000)
+                .build();
+        itemRepository.save(item);
+
+        //expected
+        mockMvc.perform(MockMvcRequestBuilders.delete("/items/{itemId}", item.getId())
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+
 
 }

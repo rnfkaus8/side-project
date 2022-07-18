@@ -141,4 +141,23 @@ class ItemServiceTest {
 
         assertThat(changedItem.getPrice()).isEqualTo(itemEdit.getPrice());
     }
+
+    @Test
+    @DisplayName("상품 삭제")
+    void deleteItem() {
+        //given
+        Item item = Item.builder()
+                .name("상품명1")
+                .price(1000)
+                .description("상품설명1")
+                .build();
+
+        itemRepository.save(item);
+
+        //when
+        itemService.delete(item.getId());
+        //then
+        assertThat(0).isEqualTo(itemRepository.count());
+
+    }
 }

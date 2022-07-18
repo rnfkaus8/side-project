@@ -69,4 +69,11 @@ public class ItemService {
 
         return new ItemResponse(item);
     }
+
+    public void delete(Long itemId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
+
+        itemRepository.delete(item);
+    }
 }
