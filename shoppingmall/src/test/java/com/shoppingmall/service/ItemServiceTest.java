@@ -1,6 +1,7 @@
 package com.shoppingmall.service;
 
 import com.shoppingmall.domain.Item;
+import com.shoppingmall.exception.ItemNotFound;
 import com.shoppingmall.repository.ItemRepository;
 import com.shoppingmall.request.ItemEdit;
 import com.shoppingmall.request.ItemSave;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @Transactional
@@ -49,11 +51,11 @@ class ItemServiceTest {
     @DisplayName("상품 단건 조회 : 성공")
     void getItem() {
         //given
-        ItemSave itemSave = ItemSave.builder()
+        ItemSave item = ItemSave.builder()
                 .name("상품명1")
                 .price(1000)
                 .build();
-        Item savedItem = itemService.save(itemSave);
+        Item savedItem = itemService.save(item);
 
         //when
         ItemResponse findItem = itemService.getItem(savedItem.getId());
@@ -62,6 +64,22 @@ class ItemServiceTest {
         assertThat(savedItem.getName()).isEqualTo(findItem.getName());
         assertThat(savedItem.getPrice()).isEqualTo(findItem.getPrice());
         assertThat(savedItem.getDescription()).isEqualTo(findItem.getDescription());
+    }
+
+    @Test
+    @DisplayName("상품 단건 조회 : 실패")
+    void getItemFailed() {
+        //given
+        ItemSave item = ItemSave.builder()
+                .name("상품명1")
+                .price(1000)
+                .build();
+        Item savedItem = itemService.save(item);
+
+        //expected
+        assertThatThrownBy(() -> itemService.getItem(100L))
+                .isInstanceOf(ItemNotFound.class)
+                .hasMessage("존재하지 않는 상품입니다.");
     }
 
     @Test
@@ -89,7 +107,7 @@ class ItemServiceTest {
     }
 
     @Test
-    @DisplayName("상품 명 수정")
+    @DisplayName("상품 명 수정 : 성공")
     void editItemName() {
         //given
         Item item = Item.builder()
@@ -113,6 +131,32 @@ class ItemServiceTest {
                 .orElseThrow(() -> new RuntimeException("상품이 존재하지 않습니다. id=" + item.getId()));
 
         assertThat(changedItem.getName()).isEqualTo(itemEdit.getName());
+    }
+
+    @Test
+    @DisplayName("상품 명 수정 : 실패")
+    void editItemNameFailed() {
+        //given
+        Item item = Item.builder()
+                .name("상품명1")
+                .price(1000)
+                .description("상품설명1")
+                .build();
+
+        itemRepository.save(item);
+
+        ItemEdit itemEdit = ItemEdit.builder()
+                .name("메소")
+                .price(item.getPrice())
+                .description(item.getDescription())
+                .build();
+        //when
+
+
+        //expected
+        assertThatThrownBy(() -> itemService.edit(item.getId() + 1000L, itemEdit))
+                .isInstanceOf(ItemNotFound.class)
+                .hasMessage("존재하지 않는 상품입니다.");
     }
 
     @Test
@@ -143,7 +187,7 @@ class ItemServiceTest {
     }
 
     @Test
-    @DisplayName("상품 삭제")
+    @DisplayName("상품 삭제 : 성공")
     void deleteItem() {
         //given
         Item item = Item.builder()
@@ -158,6 +202,23 @@ class ItemServiceTest {
         itemService.delete(item.getId());
         //then
         assertThat(0).isEqualTo(itemRepository.count());
+    }
 
+    @Test
+    @DisplayName("상품 삭제 : 실패")
+    void deleteItemFailed() {
+        //given
+        Item item = Item.builder()
+                .name("상품명1")
+                .price(1000)
+                .description("상품설명1")
+                .build();
+
+        itemRepository.save(item);
+
+        //expected
+        assertThatThrownBy(() -> itemService.delete(item.getId() + 100L))
+                .isInstanceOf(ItemNotFound.class)
+                .hasMessage("존재하지 않는 상품입니다.");
     }
 }
