@@ -1,16 +1,14 @@
 package com.shoppingmall.request;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Getter
-@Builder
 @ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ItemEdit {
     @NotBlank(message = "상품명을 입력하세요.")
     private String name;
