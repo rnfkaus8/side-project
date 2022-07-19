@@ -31,6 +31,7 @@ public class ItemController {
 
     @PostMapping("/items")
     public void save(@RequestBody @Valid ItemSave request) {
+        request.validate();
         itemService.save(request);
     }
 
