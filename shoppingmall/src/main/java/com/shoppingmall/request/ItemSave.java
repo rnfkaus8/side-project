@@ -1,5 +1,6 @@
 package com.shoppingmall.request;
 
+import com.shoppingmall.exception.InvalidRequest;
 import lombok.*;
 
 import javax.validation.constraints.Min;
@@ -26,5 +27,11 @@ public class ItemSave {
         this.name = name;
         this.price = price;
         this.description = description;
+    }
+
+    public void validate() {
+        if (name.contains("욕설")) {
+            throw new InvalidRequest("name", "상품명에 욕설을 포함할 수 없습니다.");
+        }
     }
 }
