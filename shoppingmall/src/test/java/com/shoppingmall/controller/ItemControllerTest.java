@@ -85,7 +85,7 @@ class ItemControllerTest {
     }
 
     @Test
-    @DisplayName("/items POST 요청 테스트")
+    @DisplayName("상품 저장 : 성공")
     void save() throws Exception {
         //given
 //        ItemSave itemSave = new ItemSave("itemName", 10000, "");
@@ -110,11 +110,28 @@ class ItemControllerTest {
         assertThat(findItem.getName()).isEqualTo(itemSave.getName());
         assertThat(findItem.getPrice()).isEqualTo(itemSave.getPrice());
         assertThat(findItem.getDescription()).isEqualTo(itemSave.getDescription());
-
     }
 
     @Test
-    @DisplayName("/items POST 요청 시 name 필수, price 필수, price >= 1000 성공")
+    @DisplayName("상품 저장 : 실패")
+    void saveFailed() throws Exception {
+        //given
+//        ItemSave itemSave = new ItemSave("itemName", 10000, "");
+        ItemSave itemSave = ItemSave.builder()
+                .name("욕설제목")
+                .price(10000)
+                .build();
+        String content = objectMapper.writeValueAsString(itemSave);
+        mockMvc.perform(post("/items")
+                        .contentType(APPLICATION_JSON)
+                        .accept(APPLICATION_JSON)
+                        .content(content))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("상품 저장 요청 시 name 필수, price 필수, price >= 1000 성공")
     void itemSaveValid() throws Exception {
         ItemSave itemSave = ItemSave.builder()
                 .name("name")
@@ -130,7 +147,7 @@ class ItemControllerTest {
     }
 
     @Test
-    @DisplayName("/items POST 요청 시 name 필수, price 필수, price >= 1000 실패")
+    @DisplayName("상품 저장 요청 시 name 필수, price 필수, price >= 1000 실패")
     void itemSaveValidFailed() throws Exception {
         ItemSave emptyName = ItemSave.builder()
                 .price(1000)
@@ -171,7 +188,7 @@ class ItemControllerTest {
     }
 
     @Test
-    @DisplayName("상품명 변경")
+    @DisplayName("상품명 변경 : 성공")
     void edit() throws Exception {
         //given
         Item item = Item.builder()
@@ -195,7 +212,7 @@ class ItemControllerTest {
     }
 
     @Test
-    @DisplayName("상품 삭제")
+    @DisplayName("상품 삭제 : 성공")
     void delete() throws Exception {
         //given
         Item item = Item.builder()
@@ -211,6 +228,40 @@ class ItemControllerTest {
                 .andDo(print());
     }
 
+    @Test
+    @DisplayName("상품 삭제 : 실패")
+    void deleteFailed() throws Exception {
+        //expected
+        long randomId = Math.round(Math.random());
+        mockMvc.perform(MockMvcRequestBuilders.delete("/items/{itemId}", randomId)
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("상품명 변경 : 실패")
+    void editFailed() throws Exception {
+        //given
+        Item item = Item.builder()
+                .name("상품명1")
+                .price(10000)
+                .build();
+        itemRepository.save(item);
+
+        ItemEdit itemEdit = ItemEdit.builder()
+                .name("변경상품명1")
+                .price(item.getPrice())
+                .description(item.getDescription())
+                .build();
+
+        mockMvc.perform(patch("/items/{itemId}", Math.round(Math.random()))
+                        .contentType(APPLICATION_JSON)
+                        .accept(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(itemEdit)))
+                .andExpect(status().isNotFound())
+                .andDo(print());
+    }
 
 
 }
